@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF Vault</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+    <div class="topbar-left">
+        <h1>🗃️ GIF Vault</h1>
+        <span class="gif-count" id="gifCount">0 items</span>
+    </div>
+    <div class="controls">
+        <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search...">
+        </div>
+        <div class="sort-wrap">
+            <select id="sortSelect">
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+                <option value="type">By Type</option>
+            </select>
+        </div>
+        <div class="grid-wrap">
+            <span class="grid-icon">⊞</span>
+            <input type="range" id="gridSlider" min="2" max="8" value="4">
+        </div>
+        <!-- Layout toggle -->
+        <button class="btn btn-secondary" id="layoutToggleBtn" title="Switch layout">⊟ Masonry</button>
+        <!-- Max simultaneous videos -->
+        <div class="max-videos-wrap" title="Max simultaneous playing videos">
+            <span style="font-size:.75rem;color:var(--muted);white-space:nowrap;">▶ Max:</span>
+            <input type="number" id="maxVideosInput" value="15" min="1" max="100"
+                style="width:52px;padding:5px 7px;border-radius:8px;border:1px solid var(--border);
+                       background:var(--bg3);color:var(--text);font-size:.82rem;">
+        </div>
+        <button class="btn btn-secondary" id="bulkBtn">☑️ Select</button>
+        <button class="btn btn-primary"   id="importBtn">⬆️ Import</button>
+        <button class="btn btn-secondary" id="exportBtn">⬇️ Export</button>
+        <button class="btn btn-warning"   id="dupeBtn">🔍 Dupes</button>
+        <button class="btn btn-warning"   id="deadBtn">💀 Dead</button>
+        <button class="btn btn-success"   id="zipBtn">📦 ZIP</button>
+        <button class="btn btn-success"   id="saveToggleBtn">💾 Save: ON</button>
+        <button class="btn btn-danger"    id="clearBtn">🗑️ Clear</button>
+    </div>
+</div>
+
+<!-- ── TABS ── -->
+<div class="tab-bar">
+    <button class="tab-btn active" data-tab="vault">🗃️ My Vault</button>
+    <button class="tab-btn"        data-tab="reddit">🟠 Reddit</button>
+</div>
+
+<!-- ── FILTER BAR ── -->
+<div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="gif">GIF</button>
+    <button class="filter-btn" data-filter="webm">WEBM</button>
+    <button class="filter-btn" data-filter="mp4">MP4</button>
+    <button class="filter-btn" data-filter="webp">WEBP</button>
+    <button class="filter-btn" data-filter="png">PNG</button>
+    <button class="filter-btn" data-filter="jpg">JPG</button>
+    <button class="filter-btn" data-filter="other">Other</button>
+</div>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar" id="statsBar">
+    <span id="statGif">GIF: 0</span>
+    <span id="statWebm">WEBM: 0</span>
+    <span id="statMp4">MP4: 0</span>
+    <span id="statOther">Other: 0</span>
+    <span id="statVisible">Showing: 0 / 0</span>
+    <span id="statDead" class="hidden">💀 Dead: 0</span>
+    <span class="broadcast-status" id="broadcastStatus">📡 Listening</span>
+</div>
+
+<!-- ── BULK TOOLBAR ── -->
+<div class="bulk-toolbar hidden" id="bulkToolbar">
+    <span id="bulkCount">0 selected</span>
+    <button class="btn btn-secondary" id="bulkSelectAll">Select All</button>
+    <button class="btn btn-secondary" id="bulkExport">Export Selected</button>
+    <button class="btn btn-danger"    id="bulkDelete">Delete Selected</button>
+    <button class="btn btn-secondary" id="bulkCancel">Cancel</button>
+</div>
+
+<!-- ── PROGRESS BAR ── -->
+<div class="progress-bar-wrap hidden" id="progressWrap">
+    <div class="progress-bar" id="progressBar"></div>
+    <span class="progress-label" id="progressLabel">0%</span>
+</div>
+
+<!-- ── INCOMING TRAY ── -->
+<div class="incoming-tray hidden" id="incomingTray">
+    <div class="incoming-header">
+        <span id="incomingTitle">📡 0 items incoming</span>
+        <div class="incoming-actions">
+            <button class="btn btn-success"   id="incomingAccept">✅ Add All</button>
+            <button class="btn btn-secondary" id="incomingTogglePreview">👁️ Preview</button>
+            <button class="btn btn-danger"    id="incomingReject">✕ Dismiss</button>
+        </div>
+    </div>
+    <div class="incoming-preview-row" id="incomingPreviewRow"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- VAULT TAB                                      -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-vault">
+    <div class="gallery grid-layout" id="gallery"></div>
+    <div class="load-more-wrap hidden" id="loadMoreWrap">
+        <button class="btn btn-primary" id="loadMoreBtn">Load More</button>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- REDDIT TAB                                     -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-reddit">
+
+    <div class="reddit-controls">
+        <div class="reddit-input-row">
+            <span class="reddit-prefix">r/</span>
+            <input type="text" id="subredditInput" placeholder="subreddit name...">
+            <select id="redditSort">
+                <option value="hot">Hot</option>
+                <option value="new">New</option>
+                <option value="top">Top</option>
+                <option value="rising">Rising</option>
+            </select>
+            <select id="redditFilter">
+                <option value="all">All Media</option>
+                <option value="gif">GIF / Animated</option>
+                <option value="mp4">MP4 / Video</option>
+                <option value="webm">WEBM</option>
+                <option value="webp">WEBP</option>
+                <option value="img">Images (jpg/png)</option>
+            </select>
+            <button class="btn btn-primary"   id="redditLoadBtn">Load</button>
+            <button class="btn btn-danger"    id="redditClearBtn">Clear</button>
+            <button class="btn btn-secondary" id="redditAddBtn">+ Save Sub</button>
+        </div>
+
+        <!-- Picked subs list injected by JS -->
+
+        <!-- Saved subreddits -->
+        <div class="saved-subs" id="savedSubs"></div>
+
+        <!-- Reddit stats -->
+        <div class="reddit-stats" id="redditStats" style="display:none;">
+            <span id="redditStatSub"></span>
+            <span id="redditStatCount">0 loaded</span>
+            <span id="redditStatAdded">0 added to vault</span>
+        </div>
+    </div>
+
+    <!-- Grid / Masonry toggle -->
+    <div class="reddit-view-toggle">
+        <button class="view-btn active" id="viewMasonry">⊟ Masonry</button>
+        <button class="view-btn"        id="viewGrid">⊞ Grid</button>
+    </div>
+
+    <!-- Reddit gallery -->
+    <div class="gallery reddit-gallery masonry-mode" id="redditGallery"></div>
+
+    <div class="load-more-wrap hidden" id="redditLoadMoreWrap">
+        <div class="reddit-loading" id="redditLoading" style="display:none;">
+            <div class="spinner"></div>
+            <span>Loading more...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- MODALS                                         -->
+<!-- ══════════════════════════════════════════════ -->
+
+<!-- GIF Modal -->
+<div class="modal hidden" id="modal">
+    <div class="modal-backdrop" id="modalBackdrop"></div>
+    <div class="modal-content">
+        <div class="modal-toolbar">
+            <button class="modal-btn" id="modalPrev">◀ Prev</button>
+            <span class="modal-index" id="modalIndex">1 / 1</span>
+            <button class="modal-btn" id="modalNext">Next ▶</button>
+        </div>
+        <img id="modalImg" alt="preview">
+        <div class="modal-actions">
+            <button class="modal-btn" id="modalOpen">🔗 Open</button>
+            <button class="modal-btn" id="modalCopy">📋 Copy URL</button>
+            <button class="modal-btn" id="modalDownload">⬇️ Download</button>
+            <button class="modal-btn" id="modalAddTag">🏷️ Tag</button>
+            <button class="modal-btn btn-danger" id="modalDelete">🗑️ Remove</button>
+        </div>
+        <div class="modal-tags" id="modalTags"></div>
+        <button class="modal-close" id="modalClose">✕</button>
+    </div>
+</div>
+
+<!-- Tag Modal -->
+<div class="tag-modal hidden" id="tagModal">
+    <div class="tag-modal-content">
+        <h2>🏷️ Manage Tags</h2>
+        <div class="tag-input-row">
+            <input type="text" id="tagInput" placeholder="Add tag...">
+            <button class="btn btn-primary" id="tagAddBtn">Add</button>
+        </div>
+        <div class="tag-list" id="tagList"></div>
+        <div class="tag-collection-section">
+            <h3>Collections</h3>
+            <div class="collection-list" id="collectionList"></div>
+            <div class="tag-input-row">
+                <input type="text" id="collectionInput" placeholder="New collection name...">
+                <button class="btn btn-primary" id="collectionAddBtn">Create</button>
+            </div>
+        </div>
+        <button class="btn btn-secondary" id="tagCloseBtn">Done</button>
+    </div>
+</div>
+
+<!-- Import Modal -->
+<div class="import-modal hidden" id="importModal">
+    <div class="import-modal-content">
+        <h2>⬆️ Import</h2>
+        <p>Paste your Discord settings JSON or a plain URL list.</p>
+        <textarea id="importTextarea" placeholder='{"settings": "base64..."}' spellcheck="false"></textarea>
+        <div class="import-info" id="importInfo"></div>
+        <div class="import-actions">
+            <button class="btn btn-secondary" id="importCancelBtn">Cancel</button>
+            <button class="btn btn-primary"   id="importConfirmBtn">Import</button>
+        </div>
+    </div>
+</div>
+
+<!-- Vault Context Menu -->
+<div class="context-menu hidden" id="contextMenu">
+    <button class="ctx-item"        id="ctxView">👁️ View</button>
+    <button class="ctx-item"        id="ctxCopy">📋 Copy URL</button>
+    <button class="ctx-item"        id="ctxDownload">⬇️ Download</button>
+    <button class="ctx-item"        id="ctxTag">🏷️ Tag</button>
+    <button class="ctx-item"        id="ctxSelect">☑️ Select</button>
+    <button class="ctx-item danger" id="ctxDelete">🗑️ Delete</button>
+</div>
+
+<!-- Reddit Context Menu -->
+<div class="context-menu hidden" id="redditContextMenu">
+    <button class="ctx-item" data-reddit-ctx="open">🔗 Open</button>
+    <button class="ctx-item" data-reddit-ctx="copy">📋 Copy URL</button>
+    <button class="ctx-item" data-reddit-ctx="save">💾 Save to Vault</button>
+</div>
+
+<!-- Shortcuts Panel -->
+<div class="shortcuts-panel hidden" id="shortcutsPanel">
+    <div class="shortcuts-content">
+        <h2>⌨️ Keyboard Shortcuts</h2>
+        <div class="shortcut-list">
+            <div class="shortcut-row"><kbd>/</kbd><span>Focus search</span></div>
+            <div class="shortcut-row"><kbd>Esc</kbd><span>Close modal</span></div>
+            <div class="shortcut-row"><kbd>←</kbd><span>Previous (modal)</span></div>
+            <div class="shortcut-row"><kbd>→</kbd><span>Next (modal)</span></div>
+            <div class="shortcut-row"><kbd>D</kbd><span>Delete (modal)</span></div>
+            <div class="shortcut-row"><kbd>C</kbd><span>Copy URL (modal)</span></div>
+            <div class="shortcut-row"><kbd>T</kbd><span>Tag (modal)</span></div>
+            <div class="shortcut-row"><kbd>?</kbd><span>Toggle shortcuts</span></div>
+        </div>
+        <button class="btn btn-secondary" id="shortcutsClose">Close</button>
+    </div>
+</div>
+
+<button class="shortcuts-fab" id="shortcutsFab">?</button>
+<div class="toast hidden" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<!-- Fuse.js fuzzy search -->
+<script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
