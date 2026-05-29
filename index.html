@@ -30,33 +30,72 @@
             <span class="grid-icon">⊞</span>
             <input type="range" id="gridSlider" min="2" max="8" value="4">
         </div>
-        <!-- Layout toggle -->
-        <button class="btn btn-secondary" id="layoutToggleBtn" title="Switch layout">⊟ Masonry</button>
-        <!-- Max simultaneous videos -->
-        <div class="max-videos-wrap" title="Max simultaneous playing videos">
-            <span style="font-size:.75rem;color:var(--muted);white-space:nowrap;">▶ Max:</span>
-            <input type="number" id="maxVideosInput" value="15" min="1" max="100"
-                style="width:52px;padding:5px 7px;border-radius:8px;border:1px solid var(--border);
-                       background:var(--bg3);color:var(--text);font-size:.82rem;">
-        </div>
         <button class="btn btn-secondary" id="bulkBtn">☑️ Select</button>
         <button class="btn btn-primary"   id="importBtn">⬆️ Import</button>
         <button class="btn btn-secondary" id="exportBtn">⬇️ Export</button>
         <button class="btn btn-warning"   id="dupeBtn">🔍 Dupes</button>
         <button class="btn btn-warning"   id="deadBtn">💀 Dead</button>
         <button class="btn btn-success"   id="zipBtn">📦 ZIP</button>
-        <button class="btn btn-success"   id="saveToggleBtn">💾 Save: ON</button>
-        <button class="btn btn-danger"    id="clearBtn">🗑️ Clear</button>
+        <button class="btn btn-secondary" id="settingsBtn">⚙️ Settings</button>
+    </div>
+</div>
+
+<!-- ── SETTINGS PANEL ── -->
+<div class="settings-panel hidden" id="settingsPanel">
+    <div class="settings-header">
+        <h2>⚙️ Settings</h2>
+        <button class="settings-close" id="settingsClose">✕</button>
+    </div>
+    <div class="settings-body">
+
+        <div class="settings-section">
+            <div class="settings-section-title">Display</div>
+            <button class="settings-btn" id="settingsLayoutBtn">⊟ Switch to Masonry</button>
+            <button class="settings-btn" id="settingsFitBtn">⛶ Switch to Cropped</button>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-section-title">Playback</div>
+            <label class="settings-label">Max simultaneous media</label>
+            <input type="number" id="settingsMaxVideos" value="15" min="1" max="100" class="settings-input">
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-section-title">Vault</div>
+            <button class="settings-btn active" id="settingsSaveBtn">💾 Auto-save: ON</button>
+            <button class="settings-btn" id="settingsClearDiscord">🗑️ Clear Discord Media</button>
+            <button class="settings-btn danger" id="settingsClearAll">🗑️ Clear All Vault</button>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-section-title">Reddit</div>
+            <button class="settings-btn" id="settingsRedditMode">🔄 Reddit Mode: Original (v9)</button>
+        </div>
+
+        <div class="settings-section">
+            <div class="settings-section-title">🚫 Global Tag Blacklist</div>
+            <div style="font-size:.74rem;color:var(--muted);margin-bottom:6px;">Applies to Danbooru, Gelbooru, Rule34</div>
+            <div class="blacklist-input-row">
+                <input type="text" id="blacklistInput" placeholder="tag to blacklist..." class="settings-input" style="flex:1;">
+                <button class="btn btn-danger" id="blacklistAddBtn" style="padding:7px 12px;font-size:.8rem;">Add</button>
+            </div>
+            <div class="blacklist-chips" id="blacklistChips"></div>
+        </div>
+
     </div>
 </div>
 
 <!-- ── TABS ── -->
 <div class="tab-bar">
-    <button class="tab-btn active" data-tab="vault">🗃️ My Vault</button>
+    <button class="tab-btn active" data-tab="vault">🗃️ Vault</button>
     <button class="tab-btn"        data-tab="reddit">🟠 Reddit</button>
+    <button class="tab-btn"        data-tab="danbooru">🟣 Danbooru</button>
+    <button class="tab-btn"        data-tab="gelbooru">💚 Gelbooru</button>
+    <button class="tab-btn"        data-tab="rule34">❤️ Rule34</button>
+    <button class="tab-btn"        data-tab="bluesky">🦋 Bluesky</button>
 </div>
 
-<!-- ── FILTER BAR ── -->
+<!-- ── FILTER BAR (vault only) ── -->
 <div class="filter-bar" id="filterBar">
     <button class="filter-btn active" data-filter="all">All</button>
     <button class="filter-btn" data-filter="gif">GIF</button>
@@ -121,7 +160,6 @@
 <!-- REDDIT TAB                                     -->
 <!-- ══════════════════════════════════════════════ -->
 <div class="tab-content" id="tab-reddit">
-
     <div class="reddit-controls">
         <div class="reddit-input-row">
             <span class="reddit-prefix">r/</span>
@@ -139,38 +177,174 @@
                 <option value="webm">WEBM</option>
                 <option value="webp">WEBP</option>
                 <option value="img">Images (jpg/png)</option>
+                <option value="long30">⏱ 30s+</option>
             </select>
             <button class="btn btn-primary"   id="redditLoadBtn">Load</button>
             <button class="btn btn-danger"    id="redditClearBtn">Clear</button>
             <button class="btn btn-secondary" id="redditAddBtn">+ Save Sub</button>
         </div>
-
-        <!-- Picked subs list injected by JS -->
-
-        <!-- Saved subreddits -->
         <div class="saved-subs" id="savedSubs"></div>
-
-        <!-- Reddit stats -->
-        <div class="reddit-stats" id="redditStats" style="display:none;">
+        <div class="reddit-stats hidden" id="redditStats">
             <span id="redditStatSub"></span>
             <span id="redditStatCount">0 loaded</span>
             <span id="redditStatAdded">0 added to vault</span>
         </div>
     </div>
 
-    <!-- Grid / Masonry toggle -->
     <div class="reddit-view-toggle">
         <button class="view-btn active" id="viewMasonry">⊟ Masonry</button>
         <button class="view-btn"        id="viewGrid">⊞ Grid</button>
     </div>
 
-    <!-- Reddit gallery -->
     <div class="gallery reddit-gallery masonry-mode" id="redditGallery"></div>
 
     <div class="load-more-wrap hidden" id="redditLoadMoreWrap">
         <div class="reddit-loading" id="redditLoading" style="display:none;">
             <div class="spinner"></div>
             <span>Loading more...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- DANBOORU TAB                                   -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-danbooru">
+    <div class="booru-controls">
+        <div class="booru-header">
+            <span class="booru-logo danbooru-logo">🟣 Danbooru</span>
+            <div class="booru-input-row">
+                <input type="text" id="danbooruTags" placeholder="tags... (e.g. animated solo)">
+                <select id="danbooruSort">
+                    <option value="score">Top Score</option>
+                    <option value="date">Newest</option>
+                </select>
+                <select id="danbooruFilter">
+                    <option value="all">All Media</option>
+                    <option value="gif">GIF</option>
+                    <option value="webm">WEBM</option>
+                    <option value="mp4">MP4</option>
+                    <option value="video">Video (all)</option>
+                    <option value="image">Images</option>
+                </select>
+                <button class="btn btn-primary"  id="danbooruLoadBtn">Search</button>
+                <button class="btn btn-danger"   id="danbooruClearBtn">Clear</button>
+            </div>
+        </div>
+        <div class="booru-stats" id="danbooruStats">
+            <span id="danbooruStatCount">0 loaded</span>
+        </div>
+    </div>
+    <div class="gallery booru-gallery masonry-mode" id="danbooruGallery"></div>
+    <div class="load-more-wrap hidden" id="danbooruLoadMore">
+        <div class="reddit-loading" id="danbooruLoading" style="display:none;">
+            <div class="spinner"></div><span>Loading...</span>
+        </div>
+        <button class="btn btn-primary" id="danbooruLoadMoreBtn" style="display:none;">Load More</button>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- GELBOORU TAB                                   -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-gelbooru">
+    <div class="booru-controls">
+        <div class="booru-header">
+            <span class="booru-logo gelbooru-logo">💚 Gelbooru</span>
+            <div class="booru-input-row">
+                <input type="text" id="gelbooruTags" placeholder="tags... (e.g. animated rating:explicit)">
+                <select id="gelbooruSort">
+                    <option value="score">Top Score</option>
+                    <option value="date">Newest</option>
+                </select>
+                <select id="gelbooruFilter">
+                    <option value="all">All Media</option>
+                    <option value="gif">GIF</option>
+                    <option value="webm">WEBM</option>
+                    <option value="mp4">MP4</option>
+                    <option value="video">Video (all)</option>
+                    <option value="image">Images</option>
+                </select>
+                <button class="btn btn-primary" id="gelbooruLoadBtn">Search</button>
+                <button class="btn btn-danger"  id="gelbooruClearBtn">Clear</button>
+            </div>
+        </div>
+        <div class="booru-stats" id="gelbooruStats">
+            <span id="gelbooruStatCount">0 loaded</span>
+        </div>
+    </div>
+    <div class="gallery booru-gallery masonry-mode" id="gelbooruGallery"></div>
+    <div class="load-more-wrap hidden" id="gelbooruLoadMore">
+        <div class="reddit-loading" id="gelbooruLoading" style="display:none;">
+            <div class="spinner"></div><span>Loading...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- RULE34 TAB                                     -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-rule34">
+    <div class="booru-controls">
+        <div class="booru-header">
+            <span class="booru-logo rule34-logo">❤️ Rule34</span>
+            <div class="booru-input-row">
+                <input type="text" id="rule34Tags" placeholder="tags... (e.g. animated female)">
+                <select id="rule34Sort">
+                    <option value="score">Top Score</option>
+                    <option value="date">Newest</option>
+                </select>
+                <select id="rule34Filter">
+                    <option value="all">All Media</option>
+                    <option value="gif">GIF</option>
+                    <option value="webm">WEBM</option>
+                    <option value="mp4">MP4</option>
+                    <option value="video">Video (all)</option>
+                    <option value="image">Images</option>
+                </select>
+                <button class="btn btn-primary" id="rule34LoadBtn">Search</button>
+                <button class="btn btn-danger"  id="rule34ClearBtn">Clear</button>
+            </div>
+        </div>
+        <div class="booru-stats" id="rule34Stats">
+            <span id="rule34StatCount">0 loaded</span>
+        </div>
+    </div>
+    <div class="gallery booru-gallery masonry-mode" id="rule34Gallery"></div>
+    <div class="load-more-wrap hidden" id="rule34LoadMore">
+        <div class="reddit-loading" id="rule34Loading" style="display:none;">
+            <div class="spinner"></div><span>Loading...</span>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- BLUESKY TAB                                    -->
+<!-- ══════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-bluesky">
+    <div class="booru-controls">
+        <div class="booru-header">
+            <span class="booru-logo bsky-logo">🦋 Bluesky</span>
+            <div class="booru-input-row">
+                <input type="text" id="bskyQuery" placeholder="keyword or #hashtag...">
+                <select id="bskyFilter">
+                    <option value="all">All Media</option>
+                    <option value="gif">GIF</option>
+                    <option value="mp4">MP4 / Video</option>
+                    <option value="image">Images</option>
+                </select>
+                <button class="btn btn-primary" id="bskyLoadBtn">Search</button>
+                <button class="btn btn-danger"  id="bskyClearBtn">Clear</button>
+            </div>
+        </div>
+        <div class="booru-stats" id="bskyStats" style="display:none;">
+            <span id="bskyStatCount">0 loaded</span>
+        </div>
+    </div>
+    <div class="gallery booru-gallery masonry-mode" id="bskyGallery"></div>
+    <div class="load-more-wrap hidden" id="bskyLoadMore">
+        <div class="reddit-loading" id="bskyLoading" style="display:none;">
+            <div class="spinner"></div><span>Loading...</span>
         </div>
     </div>
 </div>
@@ -253,6 +427,22 @@
     <button class="ctx-item" data-reddit-ctx="save">💾 Save to Vault</button>
 </div>
 
+<!-- Booru Context Menu (shared Danbooru/Gelbooru/Rule34) -->
+<div class="context-menu hidden" id="booruContextMenu">
+    <button class="ctx-item" data-booru-ctx="open">🔗 Open</button>
+    <button class="ctx-item" data-booru-ctx="copy">📋 Copy URL</button>
+    <button class="ctx-item" data-booru-ctx="save">💾 Save to Vault</button>
+    <button class="ctx-item" data-booru-ctx="blacklist-tag">🚫 Blacklist Tag</button>
+</div>
+
+<!-- Bluesky Context Menu -->
+<div class="context-menu hidden" id="bskyContextMenu">
+    <button class="ctx-item" data-bsky-ctx="open">🔗 Open Media</button>
+    <button class="ctx-item" data-bsky-ctx="open-post">🦋 Open Post</button>
+    <button class="ctx-item" data-bsky-ctx="copy">📋 Copy URL</button>
+    <button class="ctx-item" data-bsky-ctx="save">💾 Save to Vault</button>
+</div>
+
 <!-- Shortcuts Panel -->
 <div class="shortcuts-panel hidden" id="shortcutsPanel">
     <div class="shortcuts-content">
@@ -275,7 +465,6 @@
 <div class="toast hidden" id="toast"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<!-- Fuse.js fuzzy search -->
 <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script>
 <script src="script.js"></script>
 </body>
